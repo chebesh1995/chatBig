@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "853279388621",
+    "firebase_url": "https://bigchat-5b28d-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "bigchat-5b28d",
+    "storage_bucket": "bigchat-5b28d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:853279388621:android:7c34e3116fcaa1954d8a84",
+        "android_client_info": {
+          "package_name": "com.example.big_chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2GIvUFPlEpGMq-gNEoFki4T3MkZ_IRg0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
