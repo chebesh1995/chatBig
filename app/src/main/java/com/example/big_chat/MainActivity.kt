@@ -1,77 +1,28 @@
 package com.example.big_chat
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.example.big_chat.adapter.UserAdapter
-import com.example.big_chat.databinding.ActivityMainBinding
-import com.example.big_chat.model.User
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import androidx.appcompat.widget.Toolbar
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
+import androidx.navigation.ui.setupActionBarWithNavController
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var userRv: RecyclerView
-    private lateinit var userList: ArrayList<User>
-    private lateinit var adapter: UserAdapter
-    private lateinit var mAuth: FirebaseAuth
-    private lateinit var mDbRef: DatabaseReference
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        mAuth = FirebaseAuth.getInstance()
-        mDbRef = FirebaseDatabase.getInstance().reference
-
-        userList = ArrayList()
-        adapter = UserAdapter(this, userList)
-
-        userRv = findViewById(R.id.userRv)
-        userRv.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        userRv.adapter = adapter
-
-        mDbRef.child("user").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                userList.clear()
-                for (postSnapshot in snapshot.children) {
-                    val currentUser = postSnapshot.getValue(User::class.java)
-
-                    if (mAuth.currentUser?.uid != currentUser?.uid){
-                        userList.add(currentUser!!)
-                    }
-                }
-                adapter.notifyDataSetChanged()
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-
-            }
-        })
+        setContentView(R.layout.activity_main)
+        val toolbar = findViewById<Toolbar>(R.id.my_toolbar)
+        setSupportActionBar(toolbar)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu, menu)
-        return super.onCreateOptionsMenu(menu)
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        val navController = Navigation.findNavController(this, R.id.fragmentContainerView)
+        setupActionBarWithNavController(navController)
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.logout) {
-            mAuth.signOut()
-            val intent = Intent(this@MainActivity, LogIn::class.java)
-            startActivity(intent)
-            return true
-        }
-        return true
+    override fun onSupportNavigateUp(): Boolean {
+        val controller = findNavController(R.id.fragmentContainerView)
+        return controller.navigateUp() || super.onSupportNavigateUp()
     }
 }

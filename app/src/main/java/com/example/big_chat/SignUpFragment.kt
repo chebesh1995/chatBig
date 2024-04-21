@@ -1,12 +1,15 @@
 package com.example.big_chat
 
-import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.big_chat.databinding.ActivitySignUpBinding
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.example.big_chat.databinding.FragmentSignUpBinding
 import com.example.big_chat.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -14,19 +17,25 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 
-class SignUp : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySignUpBinding
+class SignUpFragment : Fragment() {
+    private lateinit var binding: FragmentSignUpBinding
     private lateinit var mAuth: FirebaseAuth
     private lateinit var firebaseRef: DatabaseReference
     private lateinit var storageRef: StorageReference
     private var uri: Uri? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySignUpBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentSignUpBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val controller = findNavController()
         storageRef = FirebaseStorage.getInstance().getReference("Images")
         val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) {
             binding.appLogo.setImageURI(it)
@@ -39,11 +48,6 @@ class SignUp : AppCompatActivity() {
             pickImage.launch("image/*")
         }
 
-        supportActionBar?.title = "Назад"
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        val backArrowDrawable = resources.getDrawable(android.R.drawable.ic_menu_revert)
-        supportActionBar?.setHomeAsUpIndicator(backArrowDrawable)
-
         mAuth = FirebaseAuth.getInstance()
 
         binding.btnSignup.setOnClickListener {
@@ -51,31 +55,36 @@ class SignUp : AppCompatActivity() {
             val email = binding.edtEmail.text.toString()
             val password = binding.edtPassword.text.toString()
 
-            uri?.let {
-                storageRef.child("user").putFile(it)
+            if (uri != null) {
+                storageRef.child("user").putFile(uri!!)
                     .addOnSuccessListener { task ->
                         task.metadata!!.reference!!.downloadUrl
                             .addOnSuccessListener { url ->
                                 val imgUrl = url.toString()
-
                                 signUp(name, email, password, imgUrl)
                             }
                     }
+                    .addOnFailureListener { exception ->
+                        // Handle upload error
+                        Toast.makeText(requireContext(), "Ошибка загрузки изображения", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                // No image selected, proceed with empty image URL
+                signUp(name, email, password, "")
             }
         }
     }
 
     private fun signUp(name: String, email: String, password: String, image: String) {
+        val controller = findNavController()
         mAuth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
+            .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val uid = mAuth.currentUser!!.uid
                     addUserToDatabase(name, email, uid, password, image)
-                    val intent = Intent(this@SignUp, MainActivity::class.java)
-                    finish()
-                    startActivity(intent)
+                   controller.navigate(R.id.mainChatFragment)
                 } else {
-                    Toast.makeText(this@SignUp, "Какая-то ошибка", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Какая-то ошибка", Toast.LENGTH_SHORT).show()
                 }
             }
     }
@@ -91,9 +100,9 @@ class SignUp : AppCompatActivity() {
         firebaseRef.child("user").child(uid).setValue(User(name, email, uid, password, image))
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val intent = Intent(this, LogIn::class.java)
-        startActivity(intent)
-        return true
-    }
+    /* override fun onSupportNavigateUp(): Boolean {
+         val intent = Intent(this, LogInFragment::class.java)
+         startActivity(intent)
+         return true
+     }*/
 }

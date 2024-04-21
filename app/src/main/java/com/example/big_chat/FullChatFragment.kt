@@ -1,14 +1,15 @@
 package com.example.big_chat
 
-import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.ImageView
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.big_chat.adapter.MessageAdapter
-import com.example.big_chat.databinding.ActivityChatBinding
+import com.example.big_chat.databinding.FragmentFullChatBinding
 import com.example.big_chat.model.Message
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -19,9 +20,9 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 
-class ChatActivity : AppCompatActivity() {
+class FullChatFragment : Fragment() {
 
-    private lateinit var binding: ActivityChatBinding
+    private lateinit var binding: FragmentFullChatBinding
     private lateinit var messageAdapter: MessageAdapter
     private lateinit var messageList: ArrayList<Message>
     private lateinit var mDbRef: DatabaseReference
@@ -30,14 +31,21 @@ class ChatActivity : AppCompatActivity() {
     var receiverRoom: String? = null
     var senderRoom: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityChatBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentFullChatBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        val name = intent.getStringExtra("name")
-        val receiverUid = intent.getStringExtra("uid")
-        val imgUriString = intent.getStringExtra("imgUri")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+
+        val name = arguments?.getString("name")
+        val receiverUid = arguments?.getString("uid")
+        val imgUriString = arguments?.getString("imgUri")
         val senderUid = FirebaseAuth.getInstance().currentUser?.uid
 
         mDbRef = FirebaseDatabase.getInstance().reference
@@ -46,20 +54,19 @@ class ChatActivity : AppCompatActivity() {
         senderRoom = receiverUid + senderUid
         receiverRoom = senderUid + receiverUid
 
-        val toolbarImage = findViewById<ImageView>(R.id.userImage)
         if (imgUriString != null) {
             val imgUri = Uri.parse(imgUriString)
             Glide.with(this)
                 .load(imgUri)
-                .into(toolbarImage)
+                .into(binding.userImage)
         }
 
         binding.toolbar.title = name
 
         messageList = ArrayList()
-        messageAdapter = MessageAdapter(this, messageList)
+        messageAdapter = MessageAdapter(requireContext(), messageList)
 
-        binding.chatRv.layoutManager = LinearLayoutManager(this)
+        binding.chatRv.layoutManager = LinearLayoutManager(requireContext())
         binding.chatRv.adapter = messageAdapter
 
         mDbRef.child("chats").child(senderRoom!!).child("messages")
@@ -93,9 +100,9 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val intent = Intent(this, MainActivity::class.java)
+    /*override fun onSupportNavigateUp(): Boolean {
+        val intent = Intent(this, MainChatFragment::class.java)
         startActivity(intent)
         return true
-    }
+    }*/
 }

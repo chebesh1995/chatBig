@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.example.big_chat.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_fragment1"
+            app:destination="@id/fragment1" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment1"
+        android:name="com.example.big_chat.LogInFragment"
+        android:label="fragment_1"
+        tools:layout="@layout/fragment_log_in" >
+        <action
+            android:id="@+id/action_fragment1_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/action_fragment1_to_mainChatFragment"
+            app:destination="@id/mainChatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.big_chat.SignUpFragment"
+        android:label="fragment_sign_up"
+        tools:layout="@layout/fragment_sign_up" >
+        <action
+            android:id="@+id/action_signUpFragment_to_mainChatFragment"
+            app:destination="@id/mainChatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mainChatFragment"
+        android:name="com.example.big_chat.MainChatFragment"
+        android:label="fragment_main_chat"
+        tools:layout="@layout/fragment_main_chat" >
+        <action
+            android:id="@+id/action_mainChatFragment_to_fullChatFragment"
+            app:destination="@id/fullChatFragment" />
+        <action
+            android:id="@+id/action_mainChatFragment_to_fragment1"
+            app:destination="@id/fragment1" />
+    </fragment>
+    <fragment
+        android:id="@+id/fullChatFragment"
+        android:name="com.example.big_chat.FullChatFragment"
+        android:label="FullChatFragment" />
+</navigation>

@@ -20,11 +20,11 @@ class MessageAdapter(val context: Context, val messageList: ArrayList<Message>) 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         if (viewType == 1) {
             val view: View =
-                LayoutInflater.from(context).inflate(R.layout.recieve_message, parent, false)
+                LayoutInflater.from(context).inflate(R.layout.item_received_message, parent, false)
             return ReceiveViewHolder(view)
         } else {
             val view: View =
-                LayoutInflater.from(context).inflate(R.layout.sent_message, parent, false)
+                LayoutInflater.from(context).inflate(R.layout.item_sent_message, parent, false)
             return SentViewHolder(view)
         }
     }
